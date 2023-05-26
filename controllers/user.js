@@ -22,9 +22,9 @@ async function addExercise(req, res) {
   let { duration, description, date } = req.body;
 
   if (!date) {
-    date = new Date().toDateString();
+    date = new Date();
   } else {
-    date = new Date(date).toDateString();
+    date = new Date(date);
   }
 
   const user = await User.findById(owner);
@@ -32,7 +32,12 @@ async function addExercise(req, res) {
     const newExercise = new Exercise({ duration, description, date, owner });
     await newExercise.save();
     const { __v, ...parsedUser } = user["_doc"];
-    return res.json({ ...parsedUser, duration, description, date });
+    return res.json({
+      ...parsedUser,
+      duration,
+      description,
+      date: newExercise.date.toDateString(),
+    });
   }
   return res.json({ message: "Id not found" });
 }
@@ -47,14 +52,14 @@ async function getLogs(req, res) {
   console.log(to);
   const user = await User.findById(owner);
   let arr = [];
-  const filter = { owner: user._id };
-  if (to != "Invalid Date" && from != "Invalid Date") {
-    filter["date"] = {
-      $gte: from.toDateString(),
-      $lte: to.toDateString(),
-    };
-  }
   if (user) {
+    const filter = { owner: user._id };
+    if (to != "Invalid Date" && from != "Invalid Date") {
+      filter["date"] = {
+        $gte: from,
+        $lte: to,
+      };
+    }
     const exercises = await Exercise.find(filter);
     exercises.map((exercise) => {
       arr.push({
