@@ -38,11 +38,24 @@ async function addExercise(req, res) {
 }
 
 async function getLogs(req, res) {
+  console.log(req.query);
+  console.log("There is a query");
   const owner = req.params._id;
+  const limit = parseInt(req.query.limit);
+  const to = new Date(req.query.to);
+  const from = new Date(req.query.from);
+  console.log(to);
   const user = await User.findById(owner);
-  const arr = [];
+  let arr = [];
+  const filter = { owner: user._id };
+  if (to != "Invalid Date" && from != "Invalid Date") {
+    filter["date"] = {
+      $gte: from.toDateString(),
+      $lte: to.toDateString(),
+    };
+  }
   if (user) {
-    const exercises = await Exercise.find({ owner: user._id });
+    const exercises = await Exercise.find(filter);
     exercises.map((exercise) => {
       arr.push({
         description: exercise.description,
@@ -50,11 +63,12 @@ async function getLogs(req, res) {
         date: exercise.date,
       });
     });
-    // console.log(exercises);
+    if (limit) {
+      arr = arr.slice(0, limit);
+    }
+    console.log(arr);
     const { __v, ...parsedUser } = user["_doc"];
-    return res.json({ ...parsedUser, count: exercises.length, log: arr });
+    return res.json({ ...parsedUser, count: arr.length, log: arr });
   }
 }
-
-async functio
 module.exports = { addUser, getUsers, addExercise, getLogs };
