@@ -19,7 +19,8 @@ async function getUsers(_, res) {
 
 async function addExercise(req, res) {
   const owner = req.params._id;
-  let { duration, description, date } = req.body;
+  let { description, date } = req.body;
+  const duration = parseInt(req.body.duration);
 
   if (!date) {
     date = new Date();
