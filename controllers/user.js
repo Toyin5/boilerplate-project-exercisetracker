@@ -7,7 +7,6 @@ async function addUser(req, res) {
     await user.save();
     res.json({ username: user.username, _id: user._id });
   } catch (err) {
-    console.log(err);
     res.status(500).json({ error: err });
   }
 }
@@ -44,13 +43,11 @@ async function addExercise(req, res) {
 }
 
 async function getLogs(req, res) {
-  console.log(req.query);
-  console.log("There is a query");
   const owner = req.params._id;
   const limit = parseInt(req.query.limit);
   const to = new Date(req.query.to);
   const from = new Date(req.query.from);
-  console.log(to);
+
   const user = await User.findById(owner);
   let arr = [];
   if (user) {
@@ -75,7 +72,7 @@ async function getLogs(req, res) {
     arr.forEach((a) => {
       a.date = new Date(a.date).toDateString();
     });
-    console.log(arr);
+
     const { __v, ...parsedUser } = user["_doc"];
     return res.json({ ...parsedUser, count: arr.length, log: arr });
   }
