@@ -71,6 +71,9 @@ async function getLogs(req, res) {
     if (limit) {
       arr = arr.slice(0, limit);
     }
+    arr.forEach((a) => {
+      a.date = new Date(a.date).toDateString();
+    });
     console.log(arr);
     const { __v, ...parsedUser } = user["_doc"];
     return res.json({ ...parsedUser, count: arr.length, log: arr });
